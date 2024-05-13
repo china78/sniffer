@@ -1,13 +1,12 @@
 import SplitPane from 'react-split-pane';
-import FooterContainer from '../components/FooterContainer';
 
-export default function History () {
+export default function History ({ footer }) {
   return (
     <div>
       <SplitPane split="vertical" defaultSize={300} primary="first" minSize={250} maxSize={300}>
         <div style={{ width: '100%' }}>
           <div style={{ width: '100%', backgroundColor: 'blue' }}>123</div>
-          <FooterContainer />
+          { footer }
         </div>
         <div>456</div>
       </SplitPane>
