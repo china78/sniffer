@@ -20,6 +20,10 @@ export default function FooterContainer() {
 
   const colors = !smelling ? colors1 : colors2;
 
+  function handleSmell() {
+    dispatch(setSmelling());
+  }
+
   return (
     <div className="footer">
       <Button size='small' block onClick={() => navigate('/')}>历史</Button>
@@ -40,7 +44,7 @@ export default function FooterContainer() {
           type='primary'
           block
           style={{ margin: '0px 5px' }}
-          onClick={() => dispatch(setSmelling())}
+          onClick={handleSmell}
         >
           嗅探
         </Button>

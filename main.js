@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 const url = require('url');
+const { PythonShell } = require('python-shell');
 
 const mode = process.argv[2];
 
@@ -21,6 +22,8 @@ function createWindow () {
       slashes: true 
     }))
   }
+  // 打开开发者工具
+  mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -33,4 +36,8 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
+})
+
+ipcMain.on('action-sniffer', (event, status) => {
+  console.log('--- status ---: ', status)
 })

@@ -9,7 +9,9 @@ export const footerSlice = createSlice({
   initialState,
   reducers: {
     setSmelling: (state) => {
-      state.smelling = !state.smelling;
+      const newSmell = !state.smelling;
+      state.smelling = newSmell;
+      window.electronAPI.actionSniffer(newSmell);
     },
   }
 });
