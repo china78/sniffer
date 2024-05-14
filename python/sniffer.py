@@ -1,20 +1,28 @@
-import sys
-from scapy.all import sniff
 # commadn + shift + p
 # Python: Select Interpreter
 # python 3.10.9
+import sys
+from scapy.all import AsyncSniffer
+from scapy.all import sniff
 
 # 标志位，用于控制是否停止嗅探
-stop_sniffing_flag = False
+sniffer = None
+
+def packet_handler(pkt):
+    print(pkt.summary())
 
 def start_sniffing():
+    global sniffer
     print('开始嗅探')
-    sniff(prn=lambda x: x.summary(), stop_filter=lambda _: stop_sniffing_flag)
+    sniffer = AsyncSniffer(prn=packet_handler)
+    sniffer.start()
+    # sniff(prn=lambda x: x.summary())
 
 def stop_sniffing():
-    global stop_sniffing_flag
+    global sniffer
     print('停止嗅探')
-    stop_sniffing_flag = True
+    if sniffer:
+        sniffer.stop()
 
 # 监听标准输入流
 for line in sys.stdin:
