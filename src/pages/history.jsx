@@ -1,16 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { List } from 'antd'; 
 import SplitPane from 'react-split-pane';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSniff, getSniffData } from '../features/sniff/sniffSlice';
 
 export default function History ({ footer }) {
-  const [data, setData] = useState([]);
   const listEndRef = useRef(null);
+  const sniffData = useSelector(getSniffData);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     console.log('----渲染组件-----', 11111)
     window?.electronAPI?.receiveSnifferData((value) => {
       console.log('--- value ---: ', value)
-      setData((pre) => [...pre, value])
+      dispatch(setSniff(value))
     })
   }, [])
 
@@ -18,7 +21,7 @@ export default function History ({ footer }) {
     if (listEndRef.current) {
       listEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [data]);
+  }, [sniffData]);
 
   return (
     <div>
@@ -26,7 +29,7 @@ export default function History ({ footer }) {
         <div style={{ width: '100%' }}>
           <div style={{ width: '100%', height: '100vh', overflow: 'auto' }}>
             <List
-              dataSource={data}
+              dataSource={sniffData}
               renderItem={item => (
                 <List.Item>{item}</List.Item>
               )}
