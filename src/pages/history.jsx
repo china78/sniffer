@@ -1,21 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { List } from 'antd'; 
 import SplitPane from 'react-split-pane';
 
 export default function History ({ footer }) {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
+  const listEndRef = useRef(null);
 
-  console.log('window.electronAPI', window.electronAPI)
-  window?.electronAPI?.receiveSnifferData((value) => {
-    setData(value)
-  })
+  useEffect(() => {
+    console.log('----渲染组件-----', 11111)
+    window?.electronAPI?.receiveSnifferData((value) => {
+      console.log('--- value ---: ', value)
+      setData((pre) => [...pre, value])
+    })
+  }, [])
+
+  useEffect(() => {
+    if (listEndRef.current) {
+      listEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [data]);
 
   return (
     <div>
       <SplitPane split="vertical" defaultSize={300} primary="first" minSize={250} maxSize={300}>
         <div style={{ width: '100%' }}>
-          <div style={{ width: '100%', backgroundColor: 'blue' }}>
-            {/* 显示嗅探数据 */}
-            { data }
+          <div style={{ width: '100%', height: '100vh', overflow: 'auto' }}>
+            <List
+              dataSource={data}
+              renderItem={item => (
+                <List.Item>{item}</List.Item>
+              )}
+            />
+            <div ref={listEndRef} />
           </div>
           { footer }
         </div>
