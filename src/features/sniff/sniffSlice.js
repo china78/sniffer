@@ -9,7 +9,7 @@ export const sniffSlice = createSlice({
   initialState,
   reducers: {
     setSniff: (state, action) => {
-      state.sniffData = [...state.sniffData, action.payload];
+      state.sniffData.push(action.payload);
     },
   }
 });

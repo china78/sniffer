@@ -61,8 +61,9 @@ function createPythonProcess() {
   });
 
   pythonShell.on('message', (message) => {
-    console.log('从 Python 返回:', message);
-    mainWindow.webContents.send('receive-snifferData', message);
+    const lines = message.toString().trim().split('\n');
+    console.log('-- lines --: ', lines);
+    mainWindow.webContents.send('receive-snifferData', lines);
   });
 
   pythonShell.on('stderr', (stderr) => {
