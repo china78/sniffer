@@ -16,7 +16,7 @@ export default function History ({ footer }) {
     }
     window?.electronAPI?.receiveSnifferData(handleSniff);
     return () => {
-      window?.electronAPI?.removeSnifferListener(handleSniff);
+      window?.electronAPI?.offSniffData();
     };
   }, [])
 
