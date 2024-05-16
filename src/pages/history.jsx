@@ -10,11 +10,14 @@ export default function History ({ footer }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log('----渲染组件-----', 11111)
-    window?.electronAPI?.receiveSnifferData((value) => {
+    const handleSniff = (value) => {
       console.log('--- value ---: ', value)
       dispatch(setSniff(value))
-    })
+    }
+    window?.electronAPI?.receiveSnifferData(handleSniff);
+    return () => {
+      window?.electronAPI?.removeSnifferListener(handleSniff);
+    };
   }, [])
 
   useEffect(() => {
