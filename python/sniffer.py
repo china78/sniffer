@@ -30,15 +30,15 @@ def start_sniffing():
             "key": data_counter,
             "No": data_counter,
             "Time": packet.time,
-            "Source": packet.src if hasattr(packet, 'src') else "N/A",
-            "Destination": packet.dst if hasattr(packet, 'dst') else "N/A",
-            "Protocol": packet.sprintf("%IP.proto%") if hasattr(packet, 'proto') else "Unknown",
+            "Source": packet.sprintf("%IP.src%"),
+            "Destination": packet.sprintf("%IP.dst%"),
+            "Protocol": packet.sprintf("%IP.proto%"),
             "Length": len(packet),
-            "Info": packet.summary()
+            "Info": packet.summary(),
+            "details": packet.show(dump=True),
         }
         json_data = json.dumps(packet_info)
         print(f"DATA:{json_data}", flush=True)  # 添加前缀 "DATA:" 以便识别有效数据
-
 
     sniffer = AsyncSniffer(prn=packet_handler, promisc=True)
     sniffer.start()
@@ -53,7 +53,7 @@ def stop_sniffing():
 
 def handle_input():
     line = sys.stdin.readline().strip()
-    print(f'Received command: {line}')
+    # print(f'Received command: {line}')
     sys.stdout.flush()
     if line == 'start_sniffing':
         start_sniffing()
