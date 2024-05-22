@@ -5,7 +5,8 @@ import sys
 import os
 import selectors
 import json
-from scapy.all import AsyncSniffer
+from scapy.all import AsyncSniffer, IP, IPv6, ARP, TCP, UDP, DNS, ICMP
+from scapy.layers.inet6 import ICMPv6EchoRequest, ICMPv6EchoReply
 
 print("Python 脚本已经运行")
 sys.stdout.flush()
@@ -13,6 +14,33 @@ sys.stdout.flush()
 selector = selectors.DefaultSelector()
 sniffer = None
 data_counter = 0
+protocols = {1: "ICMP", 6: "TCP", 17: "UDP", 58: "ICMPv6"}
+
+def identify_protocol(packet):
+    if packet.haslayer(IP):
+        proto_num = packet[IP].proto
+        return protocols.get(proto_num, str(proto_num))
+    elif packet.haslayer(IPv6):
+        if packet.haslayer(ICMPv6EchoRequest) or packet.haslayer(ICMPv6EchoReply):
+            return "ICMPv6"
+        return "IPv6"
+    elif packet.haslayer(ARP):
+        return "ARP"
+    elif packet.haslayer(DNS):
+        return "DNS"
+    elif packet.haslayer(UDP):
+        # Check for QUIC
+        if packet[UDP].dport == 443 or packet[UDP].sport == 443:
+            return "QUIC"
+        return "UDP"
+    elif packet.haslayer(ICMP):
+        return "ICMP"
+    elif packet.haslayer(TCP):
+        # Check for TLS
+        if packet[TCP].dport == 443 or packet[TCP].sport == 443:
+            return "TLS"
+        return "TCP"
+    return "Unknown"
 
 def start_sniffing():
     global sniffer
@@ -26,13 +54,29 @@ def start_sniffing():
     def packet_handler(packet):
         global data_counter
         data_counter += 1  # 增加计数器
+        protocol = identify_protocol(packet)
+    
+        source = "N/A"
+        destination = "N/A"
+        
+        # 设置源和目的地址
+        if packet.haslayer(IP):
+            source = packet[IP].src
+            destination = packet[IP].dst
+        elif packet.haslayer(IPv6):
+            source = packet[IPv6].src
+            destination = packet[IPv6].dst
+        elif packet.haslayer(ARP):
+            source = packet[ARP].hwsrc
+            destination = packet[ARP].hwdst
+
         packet_info = {
             "key": data_counter,
             "No": data_counter,
             "Time": packet.time,
-            "Source": packet.sprintf("%IP.src%"),
-            "Destination": packet.sprintf("%IP.dst%"),
-            "Protocol": packet.sprintf("%IP.proto%"),
+            "Source": source,
+            "Destination": destination,
+            "Protocol": protocol,
             "Length": len(packet),
             "Info": packet.summary(),
             "details": packet.show(dump=True),
@@ -69,3 +113,5 @@ while True:
     for key, mask in selector.select():
         callback = key.data
         callback()
+
+
